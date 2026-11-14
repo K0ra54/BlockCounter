@@ -3,7 +3,7 @@
   "short_name": "BlockCounter",
   "description": "Listing de blocs Minecraft : matériaux, stacks, shulkers et progression multi-builds.",
   "lang": "fr",
-  "start_url": "./BlockCounter%20V5-preview.html",
+  "start_url": "./BlockCounter%20V5.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#101713",
