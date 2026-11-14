@@ -1,0 +1,1242 @@
+<!doctype html>
+<html lang="fr" data-accent="green" data-layout="two">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#101713">
+<title>BlockCounter V3</title>
+<style>
+:root{
+  --bg:#101713;--panel:#18231d;--panel2:#202e26;--line:#2c4034;
+  --text:#edf5ef;--muted:#9fb2a4;--green:#79d98d;--green2:#3b9d5a;
+  --orange:#e8b66d;--red:#e47c7c;--shadow:0 12px 35px #0005;
+}
+html[data-accent="green"]{--green:#79d98d;--green2:#3b9d5a}
+html[data-accent="cyan"]{--green:#72d8cf;--green2:#2f9089}
+html[data-accent="violet"]{--green:#b49cf5;--green2:#7b60d6}
+html[data-accent="orange"]{--green:#f0b46a;--green2:#c8813a}
+html[data-accent="rose"]{--green:#f295b3;--green2:#c65a84}
+html[data-accent="jaune"]{--green:#eadf70;--green2:#b0a23a}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at 15% 0%,#1c3325 0,transparent 38%),var(--bg);color:var(--text);font:15px/1.45 "Segoe UI",Arial,sans-serif}
+button,input,textarea,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:1240px;margin:auto;padding:24px 22px 60px}
+header{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:22px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:13px}
+.logo{width:48px;height:48px;border-radius:14px;background:linear-gradient(145deg,var(--green),var(--green2));display:grid;place-items:center;color:#102016;font-size:25px;box-shadow:0 7px 20px color-mix(in srgb,var(--green2) 30%,transparent)}
+h1{font-size:25px;line-height:1.1;margin:0;letter-spacing:-.6px}
+.subtitle{color:var(--muted);font-size:13px;margin-top:4px}
+.header-actions{display:flex;gap:9px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:10px 14px;border-radius:10px;font-weight:600;transition:.15s}
+.btn:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.btn.primary{background:var(--green);color:#102016;border-color:var(--green)}
+.btn.danger{color:#ffb1b1}
+.btn.small{padding:7px 11px;font-size:13px;border-radius:8px}
+select.build-select{width:auto;min-width:190px;background:#101913;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:10px 12px;outline:none;font-weight:600}
+input,textarea,select{background:#101913;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:11px 12px;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--green);box-shadow:0 0 0 3px color-mix(in srgb,var(--green) 10%,transparent)}
+textarea{width:100%;min-height:150px;resize:vertical;font-family:Consolas,monospace;font-size:13px}
+label{display:block;color:var(--muted);font-size:12px;font-weight:700;margin:0 0 7px}
+.panel{background:linear-gradient(160deg,#1a2720,#151f19);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow)}
+.dashboard{display:grid;grid-template-columns:minmax(280px,1fr) 1.7fr;gap:13px;margin-bottom:13px}
+.progress-panel{display:flex;flex-direction:column;justify-content:center;gap:2px}
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:13px}
+.stat{min-height:112px;display:flex;flex-direction:column;justify-content:space-between}
+.stat-label{font-size:12px;color:var(--muted);font-weight:700}
+.stat-value{font-size:27px;font-weight:800;letter-spacing:-1px}
+.stat-sub{font-size:12px;color:var(--muted)}
+.progress-head{display:flex;justify-content:space-between;align-items:end;gap:10px}
+.percent{font-size:32px;font-weight:800;color:var(--green);letter-spacing:-1.5px}
+.track{height:10px;border-radius:20px;background:#2b3b30;overflow:hidden;margin:13px 0 8px}
+.fill{height:100%;width:0;background:linear-gradient(90deg,var(--green2),var(--green));border-radius:20px;transition:width .25s}
+.progress-foot{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;gap:10px;flex-wrap:wrap}
+.priority-panel{margin-bottom:13px}
+.priority-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.priority-col>.stat-label{margin-bottom:10px}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;gap:8px;background:#111b15;border:1px solid #26392d;border-radius:999px;padding:7px 13px;font-size:13px;cursor:pointer;transition:.15s}
+.chip:hover{border-color:var(--green)}
+.chip.warn{border-color:#8a6a35}
+.chip.warn:hover{border-color:var(--orange)}
+.chip .chip-rank{color:var(--green);font-weight:800;font-size:11px}
+.chip .chip-qty{color:var(--muted);font-size:12px}
+.tabs{display:flex;gap:8px;margin:0 0 14px}
+.tab{border:1px solid var(--line);background:var(--panel2);color:var(--muted);padding:10px 18px;border-radius:10px;font-weight:700}
+.tab.active{background:var(--green);color:#102016;border-color:var(--green)}
+.workspace{display:grid;grid-template-columns:350px 1fr;gap:16px;align-items:start}
+html[data-layout="single"] .workspace{grid-template-columns:1fr}
+.section-title{font-size:16px;margin:0 0 14px}
+.field{margin-bottom:13px}
+.helper{font-size:11px;color:var(--muted);margin-top:7px}
+.import-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.checkline{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:12px;color:var(--muted);font-weight:600}
+.checkline input{width:auto}
+.notice{font-size:12px;color:var(--muted);margin-top:10px;min-height:18px}
+.errors{margin-top:8px;font-size:12px;color:var(--orange)}
+.errors summary{cursor:pointer;color:var(--orange);font-weight:700}
+.errors div{margin-top:6px;white-space:pre-line}
+.list-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.head-left{display:flex;flex-direction:column;gap:2px}
+.list-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.list-tools .checkline{margin:0;white-space:nowrap}
+.search{max-width:220px}
+.sort-select{width:auto;padding:9px 10px;font-size:13px}
+.material-list{display:flex;flex-direction:column;gap:9px}
+.material{display:grid;grid-template-columns:42px minmax(130px,1fr) auto auto auto;gap:12px;align-items:center;background:#111b15;border:1px solid #26392d;border-radius:12px;padding:11px}
+.material.done{opacity:.62;border-color:var(--green2)}
+.material.done .material-name{text-decoration:line-through}
+.block-icon{width:40px;height:40px;border-radius:10px;display:grid;place-items:center;background:linear-gradient(145deg,#344b3a,#26382c);border:1px solid #49634e;font-size:19px}
+.material-name{font-weight:700;overflow-wrap:anywhere}
+.material-meta{font-size:11px;color:var(--muted);margin-top:3px}
+.qty{display:flex;align-items:center;gap:5px}
+.qty input{padding:8px 7px;text-align:center;min-width:0;width:76px}
+.qty span{font-size:11px;color:var(--muted);white-space:nowrap}
+.icon-btn{border:1px solid var(--line);background:var(--panel2);color:var(--text);width:32px;height:32px;border-radius:8px;display:inline-grid;place-items:center}
+.icon-btn:hover{border-color:var(--green)}
+.icon-btn.warn{color:var(--orange);border-color:#8a6a35}
+.stack-select{padding:8px 6px;font-size:12px;width:74px}
+.material-actions{display:flex;justify-content:flex-end;gap:6px;align-items:center}
+.done-check{display:inline-grid;place-items:center;margin:0;cursor:pointer}
+.done-check input{position:absolute;opacity:0;width:0;height:0}
+.done-check span{width:30px;height:30px;border-radius:8px;border:1px solid var(--line);background:var(--panel2);display:grid;place-items:center;font-size:14px;color:var(--muted);transition:.15s}
+.done-check input:checked+span{background:var(--green);color:#102016;border-color:var(--green);font-weight:800}
+.item-progress{height:4px;background:#293a2e;border-radius:9px;margin-top:7px;overflow:hidden}
+.item-progress>div{height:100%;background:var(--green);border-radius:9px}
+.empty{padding:35px 15px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:12px}
+.empty strong{display:block;color:var(--text);margin-bottom:5px}
+.shulker-tools{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.shulker-summary{font-size:13px;color:var(--muted)}
+.shulker-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(370px,1fr));gap:14px}
+.shulker{background:#111b15;border:1px solid #26392d;border-radius:14px;padding:13px}
+.shulker-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:10px}
+.shulker-title{font-weight:800;font-size:15px}
+.shulker-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.slots-scroll{overflow-x:auto}
+.slots{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;min-width:340px}
+.slot{aspect-ratio:1;background:#0d1510;border:1px solid #24382b;border-radius:7px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:3px;text-align:center;min-width:0}
+.slot .s-icon{font-size:21px;line-height:1}
+.slot .s-name{font-size:11px;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slot .s-qty{font-size:12px;font-weight:700}
+.slot.partial{border-color:var(--orange)}
+.slot.empty{opacity:.35}
+.footer-note{margin-top:17px;color:var(--muted);font-size:11px;text-align:center}
+.modal-backdrop{position:fixed;inset:0;background:#0009;display:none;place-items:center;padding:20px;z-index:5}
+.modal-backdrop.open{display:grid}
+.modal{width:min(470px,100%);max-height:92vh;overflow-y:auto;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow)}
+.modal h2{font-size:18px;margin:0 0 16px}
+.modal p{color:var(--muted);font-size:13px;margin:0 0 14px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.set-section{margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--line)}
+.set-section:last-of-type{border-bottom:0}
+.set-title{font-size:11px;color:var(--muted);font-weight:800;letter-spacing:.6px;margin-bottom:10px}
+.set-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;flex-wrap:wrap}
+.set-row>label{margin:0}
+.swatches{display:flex;gap:7px}
+.swatch{width:26px;height:26px;border-radius:50%;border:2px solid transparent;cursor:pointer;padding:0}
+.swatch.active{border-color:var(--text);box-shadow:0 0 0 2px #0006}
+.seg{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden}
+.seg button{background:var(--panel2);color:var(--muted);border:0;padding:8px 12px;font-weight:600;font-size:13px}
+.seg button.active{background:var(--green);color:#102016}
+.data-actions{display:flex;gap:8px;flex-wrap:wrap}
+.share-code{font-family:Consolas,monospace;background:#101913;border:1px solid var(--line);padding:8px 12px;border-radius:8px;letter-spacing:1.5px;font-size:14px}
+.members{display:flex;flex-direction:column;gap:5px;margin-top:10px}
+.member{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted);background:#101913;border:1px solid var(--line);border-radius:8px;padding:7px 10px}
+.member .role{color:var(--green);font-weight:700}
+.toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:var(--green);color:#102016;font-weight:700;padding:11px 20px;border-radius:999px;opacity:0;pointer-events:none;transition:.25s;z-index:9;box-shadow:0 10px 30px #0007}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+[hidden]{display:none!important}
+@media(max-width:1000px){.dashboard{grid-template-columns:1fr}.stats-grid{grid-template-columns:repeat(3,1fr)}.priority-grid{grid-template-columns:1fr}}
+@media(max-width:900px){.workspace{grid-template-columns:1fr}html[data-layout="single"] .workspace{grid-template-columns:1fr}}
+@media(max-width:600px){
+  .app{padding:16px 12px 40px}
+  header{align-items:flex-start;flex-direction:column}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .material{grid-template-columns:38px 1fr auto;gap:8px}
+  .qty{grid-column:2;grid-row:2}
+  .stack-select{grid-column:2;grid-row:3;width:100%}
+  .material-actions{grid-column:3;grid-row:1}
+  .block-icon{grid-row:1/3}
+  .list-head{align-items:flex-start;flex-direction:column}
+  .search{max-width:none}
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logo">▣</div>
+      <div><h1>BlockCounter</h1><div class="subtitle">Multi-builds, shulkers et synchronisation en ligne.</div></div>
+    </div>
+    <div class="header-actions">
+      <select class="build-select" id="buildSelect" title="Build actif"></select>
+      <button class="btn" id="newBuildBtn" title="Créer un nouveau build">＋</button>
+      <button class="btn danger" id="deleteBuildBtn" title="Supprimer le build actif">🗑</button>
+      <button class="btn" id="settingsBtn" title="Paramètres">⚙</button>
+      <button class="btn" id="accountBtn" title="Compte / connexion">Se connecter</button>
+    </div>
+  </header>
+
+  <section class="dashboard">
+    <div class="panel progress-panel">
+      <div class="progress-head"><div><div class="stat-label">PROGRESSION DU BUILD</div><div class="percent" id="percent">0%</div></div><div class="stat-sub" id="doneSummary">0 / 0 blocs récupérés</div></div>
+      <div class="track"><div class="fill" id="globalFill"></div></div>
+      <div class="progress-foot"><span id="remainingText">Il reste 0 blocs</span><span id="itemSummary">0 / 0 matériaux terminés</span></div>
+    </div>
+    <div class="stats-grid">
+      <div class="panel stat"><div class="stat-label">BLOCS RÉCUPÉRÉS</div><div class="stat-value" id="haveBlocks">0</div><div class="stat-sub" id="haveSub">sur 0 nécessaires</div></div>
+      <div class="panel stat"><div class="stat-label">BLOCS RESTANTS</div><div class="stat-value" id="remainBlocks">0</div><div class="stat-sub">à farmer</div></div>
+      <div class="panel stat"><div class="stat-label">STACKS RESTANTES</div><div class="stat-value" id="remainStacks">0</div><div class="stat-sub">partielles incluses</div></div>
+      <div class="panel stat"><div class="stat-label">EMPLACEMENTS</div><div class="stat-value" id="slots">0</div><div class="stat-sub">slots d'inventaire restants</div></div>
+      <div class="panel stat"><div class="stat-label">SHULKERS</div><div class="stat-value" id="shulkers">0</div><div class="stat-sub">27 slots chacune</div></div>
+    </div>
+  </section>
+
+  <section class="panel priority-panel">
+    <div class="priority-grid">
+      <div class="priority-col"><div class="stat-label">▶ MATÉRIAUX À FARMER EN PRIORITÉ</div><div class="chips" id="priorityChips"></div></div>
+      <div class="priority-col"><div class="stat-label">⚠ CRAFTINGS PÉNIBLES À PRÉVOIR</div><div class="chips" id="painfulChips"></div></div>
+    </div>
+  </section>
+
+  <nav class="tabs">
+    <button class="tab active" id="tabBtnMaterials">📋 Matériaux</button>
+    <button class="tab" id="tabBtnShulkers">📦 Shulkers</button>
+  </nav>
+
+  <main>
+    <div id="tab-materials">
+      <div class="workspace">
+        <aside class="panel">
+          <h2 class="section-title">Importer des matériaux</h2>
+          <div class="field"><label for="importText">COLLE TA LISTE ICI</label><textarea id="importText" spellcheck="false" placeholder="Andesite: 34 stacks + 13&#10;Andesite Stairs: 5&#10;Barrel: 25&#10;Birch Planks: 15 stacks + 36"></textarea><div class="helper">Formats acceptés : « Andesite: 34 stacks + 13 », « Barrel: 25 » ou « Stone: 128 ». Les doublons sont fusionnés.</div></div>
+          <label class="checkline"><input type="checkbox" id="importReplace"> Remplacer la liste actuelle au lieu de fusionner</label>
+          <div class="import-actions"><button class="btn primary" id="importBtn">Importer la liste</button><button class="btn" id="sampleBtn">Exemple</button></div>
+          <div class="notice" id="importNotice" aria-live="polite"></div>
+          <details class="errors" id="importErrorsBox" hidden><summary id="importErrorsTitle"></summary><div id="importErrors"></div></details>
+          <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+          <h2 class="section-title">Ajouter un matériau</h2>
+          <div class="field"><label for="newName">NOM DU BLOC / OBJET</label><input id="newName" placeholder="Ex. Stone Bricks"></div>
+          <div class="field"><label for="newQty">QUANTITÉ NÉCESSAIRE (EN BLOCS)</label><input id="newQty" type="number" min="1" step="1" placeholder="64"></div>
+          <div class="field"><label for="newStack">TAILLE D'UNE STACK</label><select id="newStack"><option value="64">64 (standard)</option><option value="16">16</option><option value="1">1 (non empilable)</option></select></div>
+          <button class="btn primary" id="addBtn" style="width:100%">Ajouter le matériau</button>
+        </aside>
+
+        <section class="panel">
+          <div class="list-head">
+            <div class="head-left"><h2 class="section-title" style="margin-bottom:3px" id="listTitle">Matériaux du build</h2><div class="stat-sub">Modifie les quantités récupérées, la taille de stack, ou coche un matériau terminé.</div></div>
+            <div class="list-tools">
+              <input class="search" id="search" placeholder="Rechercher…">
+              <select class="sort-select" id="sortSelect" title="Trier">
+                <option value="alpha">A → Z</option>
+                <option value="remaining">Restant ↓</option>
+                <option value="total">Quantité totale ↓</option>
+                <option value="progress">Progression ↑</option>
+              </select>
+              <label class="checkline" title="Masquer les matériaux terminés"><input type="checkbox" id="hideDoneToggle"> Masquer terminés</label>
+              <button class="btn small" id="copyRemainingBtn" title="Copier la liste des matériaux restants (ré-importable)">Copier les restants</button>
+            </div>
+          </div>
+          <div class="material-list" id="materialList"></div>
+        </section>
+      </div>
+    </div>
+
+    <div id="tab-shulkers" hidden>
+      <div class="panel">
+        <div class="shulker-tools">
+          <div class="shulker-summary" id="shulkerSummary"></div>
+          <button class="btn primary" id="copyPlanBtn">Copier le plan complet</button>
+        </div>
+        <div class="shulker-grid" id="shulkerGrid"></div>
+      </div>
+    </div>
+  </main>
+
+  <div class="footer-note">Sauvegarde automatique sur cet appareil + synchronisation en ligne quand tu es connecté. Sauvegarde complète : ⚙ Paramètres → Données.</div>
+</div>
+
+<div class="modal-backdrop" id="settingsModal">
+  <div class="modal">
+    <h2>⚙ Paramètres</h2>
+    <div class="set-section">
+      <div class="set-title">APPARENCE</div>
+      <div class="set-row"><label>COULEUR D'ACCENT</label>
+        <div class="swatches" id="accentSwatches">
+          <button class="swatch" data-accent="green" style="background:#79d98d" title="Vert Minecraft"></button>
+          <button class="swatch" data-accent="cyan" style="background:#72d8cf" title="Cyan"></button>
+          <button class="swatch" data-accent="violet" style="background:#b49cf5" title="Violet"></button>
+          <button class="swatch" data-accent="orange" style="background:#f0b46a" title="Orange"></button>
+          <button class="swatch" data-accent="rose" style="background:#f295b3" title="Rose"></button>
+          <button class="swatch" data-accent="jaune" style="background:#eadf70" title="Jaune"></button>
+        </div>
+      </div>
+      <div class="set-row"><label>TAILLE DE L'INTERFACE</label>
+        <div class="seg" id="scaleSeg">
+          <button data-scale="s">S</button><button data-scale="m">M</button><button data-scale="l">L</button><button data-scale="xl">XL</button>
+        </div>
+      </div>
+      <div class="set-row"><label>DISPOSITION DES PANNEAUX</label>
+        <div class="seg" id="layoutSeg">
+          <button data-layout="two">2 colonnes</button><button data-layout="single">1 colonne</button>
+        </div>
+      </div>
+    </div>
+    <div class="set-section">
+      <div class="set-title">AFFICHAGE DES QUANTITÉS (ONGLET MATÉRIAUX)</div>
+      <div class="set-row">
+        <div class="seg" id="unitsSeg">
+          <button data-units="stacks">Stacks + blocs</button><button data-units="shulkers">Shulkers + slots</button><button data-units="both">Les deux</button>
+        </div>
+      </div>
+      <label class="checkline"><input type="checkbox" id="setHideDone"> Masquer les matériaux terminés dans la liste</label>
+    </div>
+    <div class="set-section">
+      <div class="set-title">PARTAGE & MEMBRES</div>
+      <div class="set-row"><label>CODE DE PARTAGE DU BUILD</label>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <code class="share-code" id="shareCode">—</code>
+          <button class="btn small" id="copyShareBtn">Copier</button>
+        </div>
+      </div>
+      <div class="set-row"><label>REJOINDRE UN BUILD AVEC UN CODE</label>
+        <div style="display:flex;gap:8px;flex:1;min-width:220px">
+          <input id="joinCode" placeholder="Colle le code ici" style="flex:1">
+          <button class="btn" id="joinBtn">Rejoindre</button>
+        </div>
+      </div>
+      <div id="membersList" class="members"></div>
+    </div>
+    <div class="set-section">
+      <div class="set-title">DONNÉES</div>
+      <div class="data-actions">
+        <button class="btn" id="exportJsonBtn">💾 Export JSON</button>
+        <button class="btn" id="importJsonBtn">📂 Importer JSON</button>
+        <button class="btn" id="exportBtn">📄 Export TXT</button>
+        <button class="btn" id="duplicateBtn">⧉ Dupliquer le build</button>
+        <button class="btn danger" id="resetHaveBtn">↚ Remettre les récupérations à zéro</button>
+      </div>
+    </div>
+    <div class="modal-actions"><button class="btn primary" id="closeSettings">Fermer</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="newBuildModal">
+  <div class="modal"><h2>Nouveau build</h2><p>Le build actuel est conservé : tu pourras revenir dessus à tout moment via le sélecteur en haut.</p>
+    <div class="field"><label for="newBuildName">NOM DU NOUVEAU BUILD</label><input id="newBuildName" value="Mon nouveau build" maxlength="70"></div>
+    <div class="modal-actions"><button class="btn" id="cancelNew">Annuler</button><button class="btn primary" id="confirmNew">Créer</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="editModal">
+  <div class="modal"><h2>Modifier le matériau</h2>
+    <div class="field"><label for="editName">NOM</label><input id="editName" maxlength="80"></div>
+    <div class="field"><label for="editNeeded">QUANTITÉ NÉCESSAIRE (BLOCS)</label><input id="editNeeded" type="number" min="1" step="1"></div>
+    <div class="field"><label for="editHave">QUANTITÉ RÉCUPÉRÉE (BLOCS)</label><input id="editHave" type="number" min="0" step="1"></div>
+    <div class="field"><label for="editStack">TAILLE D'UNE STACK</label><select id="editStack"><option value="64">64 (standard)</option><option value="16">16</option><option value="1">1 (non empilable)</option></select></div>
+    <div class="modal-actions"><button class="btn" id="cancelEdit">Annuler</button><button class="btn primary" id="confirmEdit">Enregistrer</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="confirmModal">
+  <div class="modal"><h2 id="confirmTitle">Confirmer</h2><p id="confirmText"></p>
+    <div class="modal-actions"><button class="btn" id="cancelConfirm">Annuler</button><button class="btn danger" id="okConfirm">Supprimer</button></div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="authModal">
+  <div class="modal">
+    <h2>🔐 Connexion</h2>
+    <p>Connecte-toi pour synchroniser tes builds et les partager avec d'autres personnes. Tu peux aussi continuer en mode hors-ligne.</p>
+    <div id="authStepEmail">
+      <div class="field"><label for="authEmail">ADRESSE E-MAIL</label><input id="authEmail" type="email" placeholder="toi@exemple.com" autocomplete="email"></div>
+      <div class="field"><label for="authPass">MOT DE PASSE</label><input id="authPass" type="password" placeholder="6 caractères minimum" autocomplete="current-password"></div>
+      <div class="modal-actions"><button class="btn" id="authOffline">Continuer hors-ligne</button><button class="btn" id="authSignup">Créer un compte</button><button class="btn primary" id="authSend">Se connecter</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status"></div>
+<input type="file" id="jsonFile" accept=".json,application/json" hidden>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script id="bccore">
+(function(){
+  const STACK_SIZES=[64,16,1], SHULKER_SLOTS=27;
+  function ceilDiv(a,b){return Math.ceil(a/b);}
+  function fmtStacks(blocks,size){
+    if(size===1)return String(blocks);
+    const full=Math.floor(blocks/size),rest=blocks%size;
+    const lbl=full+(full>1?" stacks":" stack");
+    return full?(rest?lbl+" + "+rest:lbl):String(rest);
+  }
+  function unitLabels(blocks,size){
+    const stacks=fmtStacks(Math.max(0,blocks),size);
+    const slots=ceilDiv(Math.max(0,blocks),size);
+    const sh=ceilDiv(slots,SHULKER_SLOTS);
+    const shLabel=slots<=SHULKER_SLOTS?(slots+" slot"+(slots>1?"s":"")):(slots+" slots · "+sh+" shulker"+(sh>1?"s":""));
+    return {stacks,slots,shulkers:sh,shLabel};
+  }
+  function parseLine(line){
+    const match=String(line).trim().match(/^(.+?)\s*:\s*(.*?)\s*$/);
+    if(!match)return {error:"format non reconnu (attendu « Nom: quantité »)"};
+    const name=String(match[1]).trim().replace(/\s+/g," ");
+    const raw=match[2].toLowerCase().replace(/[\u00a0]/g," ").replace(/(\d),(\d)/g,"$1$2").trim();
+    if(!name||!raw)return {error:"nom ou quantité manquant"};
+    let qty=null;
+    const stackMatch=raw.match(/^(\d+)\s*stacks?\s*(?:\+\s*(\d+)\s*)?$/);
+    if(stackMatch)qty=Number(stackMatch[1])*64+Number(stackMatch[2]||0);
+    else if(/^\d+$/.test(raw))qty=Number(raw);
+    if(qty===null||!Number.isSafeInteger(qty)||qty<1)return {error:"quantité invalide (« "+match[2]+" »)"};
+    return {material:{name,needed:qty}};
+  }
+  const ICON_RULES=[
+    [/stained glass|glass|pane/,"🪟"],
+    [/pickaxe/,"⛏️"],
+    [/axe/,"🪓"],
+    [/shovel/,"🥄"],
+    [/hoe/,"🌾"],
+    [/sword/,"⚔️"],
+    [/shears/,"✂️"],
+    [/plank|wood|log|stem|hyphae|board/,"🪵"],
+    [/stairs|ladder|slab|step/,"🪜"],
+    [/brick|terracotta|clay/,"🧱"],
+    [/stone|andesite|granite|diorite|cobble|deepslate|basalt|blackstone|tuff|calcite|dripstone|cobbled/,"🪨"],
+    [/dirt|grass block|podzol|mud|soil|farmland/,"🟫"],
+    [/grass|moss|leaves|vine|azalea|kelp|seagrass/,"🍃"],
+    [/sand|end stone/,"🟨"],
+    [/gravel/,"🪨"],
+    [/wool|carpet/,"🧶"],
+    [/iron/,"🔩"],
+    [/gold/,"🪙"],
+    [/diamond/,"💎"],
+    [/emerald/,"🟢"],
+    [/redstone/,"🔴"],
+    [/lapis/,"🔵"],
+    [/coal|charcoal/,"⚫"],
+    [/quartz/,"⚪"],
+    [/obsidian|purpur/,"🟪"],
+    [/netherrack|nether brick/,"🟥"],
+    [/chest|barrel|shulker|bundle/,"📦"],
+    [/hopper/,"🕳️"],
+    [/torch|lantern|lamp|candle|glowstone|sea lantern/,"🕯️"],
+    [/egg/,"🥚"],
+    [/bow|crossbow|arrow|bolt/,"🏹"],
+    [/boat|raft/,"🛶"],
+    [/minecart|rail/,"🚃"],
+    [/bucket/,"🪣"],
+    [/pearl|ender|amethyst/,"🟣"],
+    [/rod|blaze/,"🔥"],
+    [/bone/,"🦴"],
+    [/string/,"🧵"],
+    [/feather/,"🪶"],
+    [/leather/,"🟤"],
+    [/book|paper/,"📖"],
+    [/potion|bottle/,"🧪"],
+    [/sign/,"🪧"],
+    [/door|gate|trapdoor/,"🚪"],
+    [/fence|wall|scaffolding/,"🚧"],
+    [/bed/,"🛏️"],
+    [/banner/,"🚩"],
+    [/anvil/,"⚒️"],
+    [/snow/,"❄️"],
+    [/ice/,"🧊"],
+    [/slime/,"🟩"],
+    [/concrete/,"🟦"],
+    [/copper/,"🟠"],
+    [/sponge/,"🧽"],
+    [/piston/,"🕹️"],
+    [/dispenser|dropper/,"📤"],
+    [/observer|sensor/,"👁️"],
+    [/furnace|smoker|blast/,"🔥"],
+    [/map|compass|clock/,"🗺️"],
+    [/firework|rocket/,"🎆"],
+    [/totem/,"🟿"],
+    [/skull|head/,"💀"],
+    [/mushroom/,"🍄"],
+    [/cactus/,"🌵"],
+    [/bamboo/,"🎍"],
+    [/coral|prismarine/,"🪸"],
+    [/flower|poppy|tulip|daisy|rose|sapling/,"🌹"],
+    [/bread|wheat|sugar/,"🌾"],
+    [/apple|melon|pumpkin|carrot|potato|beetroot/,"🥕"]
+  ];
+  function iconFor(name){
+    const n=String(name).toLowerCase();
+    for(const rule of ICON_RULES)if(rule[0].test(n))return rule[1];
+    return "🧱";
+  }
+  const PAINFUL_RULES=[
+    /stairs|slab|fence|wall|door|trapdoor|gate/,
+    /boat|raft|minecart|rail/,
+    /piston|dispenser|dropper|observer|repeater|comparator|hopper|tnt/,
+    /banner|beacon|conduit|end crystal|respawn anchor|end rod/,
+    /anvil|enchant|cake|firework|rocket|crossbow/,
+    /pane|concrete|terracotta|lantern|chain/,
+    /bookshelf|lectern|brewing stand|cauldron|bell|lodestone/,
+    /lightning rod|daylight detector|note block|jukebox|decorated pot|candle/,
+    /shulker box/
+  ];
+  function isPainful(name){
+    const n=String(name).toLowerCase();
+    return PAINFUL_RULES.some(r=>r.test(n));
+  }
+  function shulkerPlan(materials){
+    const agg=new Map();
+    for(const m of materials){
+      const cap=[64,16,1].includes(Number(m.stackSize))?Number(m.stackSize):64;
+      const needed=Math.max(0,Math.floor(Number(m.needed)||0));
+      const have=Math.max(0,Math.min(needed,Math.floor(Number(m.have)||0)));
+      const rem=needed-have;
+      if(rem<=0)continue;
+      const key=String(m.name).trim().toLowerCase();
+      const ex=agg.get(key);
+      if(ex)ex.rem+=rem;
+      else agg.set(key,{name:String(m.name).trim(),icon:iconFor(m.name),rem,cap});
+    }
+    const entries=[];
+    for(const it of agg.values()){
+      const full=Math.floor(it.rem/it.cap),rest=it.rem%it.cap;
+      for(let i=0;i<full;i++)entries.push({name:it.name,icon:it.icon,amount:it.cap,cap:it.cap});
+      if(rest)entries.push({name:it.name,icon:it.icon,amount:rest,cap:it.cap});
+    }
+    const shulkers=[];
+    for(let i=0;i<entries.length;i+=SHULKER_SLOTS)shulkers.push(entries.slice(i,i+SHULKER_SLOTS));
+    return shulkers;
+  }
+  window.BCCore={STACK_SIZES,SHULKER_SLOTS,ceilDiv,fmtStacks,unitLabels,parseLine,iconFor,isPainful,shulkerPlan};
+})();
+</script>
+
+<script>
+(() => {
+  "use strict";
+  const C=window.BCCore;
+  const STORE_KEY="blockcounter.v2", LEGACY_KEY="blockcounter.v1";
+  const DEFAULT_SETTINGS={accent:"green",scale:"m",units:"stacks",layout:"two",hideDone:false};
+  const $=id=>document.getElementById(id);
+  let state={version:2,builds:[],activeId:null,settings:{...DEFAULT_SETTINGS}};
+  let ui={tab:"materials",sort:"alpha",editId:null,confirmCb:null};
+
+  const number=n=>new Intl.NumberFormat("fr-FR").format(n);
+  const uid=()=>(crypto.randomUUID?crypto.randomUUID():"id-"+Date.now().toString(36)+"-"+Math.random().toString(36).slice(2,9));
+  const safeName=s=>String(s).trim().replace(/\s+/g," ");
+  const escapeHtml=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const clampHave=m=>Math.max(0,Math.min(m.needed,Math.floor(Number(m.have)||0)));
+  const remainingOf=m=>Math.max(0,m.needed-clampHave(m));
+  const pctOf=m=>m.needed?Math.min(100,Math.floor(clampHave(m)/m.needed*100)):100;
+  const isDone=m=>m.done||clampHave(m)>=m.needed;
+
+  function qtyLabel(blocks,stackSize){
+    const u=C.unitLabels(blocks,stackSize);
+    if(state.settings.units==="shulkers")return u.shLabel;
+    if(state.settings.units==="both")return u.stacks+" · "+u.shLabel;
+    return u.stacks;
+  }
+
+  function activeBuild(){return state.builds.find(b=>b.id===state.activeId)||state.builds[0]||null;}
+
+  function normalizeBuild(b){
+    return {id:b.id||uid(),remoteId:b.remoteId||null,shareCode:b.shareCode||null,members:Array.isArray(b.members)?b.members:[],name:safeName(b.name)||"Mon build",createdAt:Number(b.createdAt)||Date.now(),
+      materials:(Array.isArray(b.materials)?b.materials:[]).map(m=>({
+        id:m.id||uid(),remoteId:m.remoteId||null,name:safeName(m.name)||"Matériau",
+        needed:Math.max(0,Math.floor(Number(m.needed)||0)),
+        have:Math.max(0,Math.floor(Number(m.have)||0)),
+        stackSize:C.STACK_SIZES.includes(Number(m.stackSize))?Number(m.stackSize):64,
+        done:!!m.done,painful:!!m.painful}))};
+  }
+  function save(){try{localStorage.setItem(STORE_KEY,JSON.stringify(state));}catch(e){console.warn("Sauvegarde impossible",e);}scheduleSync();}
+  function saveLocal(){try{localStorage.setItem(STORE_KEY,JSON.stringify(state));}catch(e){}}
+  function loadData(){
+    let raw=null;
+    try{raw=JSON.parse(localStorage.getItem(STORE_KEY)||"null");}catch(e){}
+    if(raw&&Array.isArray(raw.builds)&&raw.builds.length){
+      state={version:2,builds:raw.builds.map(normalizeBuild),activeId:raw.activeId,settings:{...DEFAULT_SETTINGS,...(raw.settings||{})}};
+      if(!state.builds.some(b=>b.id===state.activeId))state.activeId=state.builds[0].id;
+      return;
+    }
+    try{raw=JSON.parse(localStorage.getItem(LEGACY_KEY)||"null");}catch(e){raw=null;}
+    if(raw&&Array.isArray(raw.materials)&&raw.materials.length){
+      const b=normalizeBuild({name:raw.buildName||"Mon build V1",materials:raw.materials});
+      state={version:2,builds:[b],activeId:b.id,settings:{...DEFAULT_SETTINGS}};
+      save();
+    }
+  }
+
+  function applySettings(){
+    const s=state.settings;
+    document.documentElement.dataset.accent=s.accent;
+    document.documentElement.dataset.layout=s.layout;
+    document.body.style.zoom={"s":0.9,"m":1,"l":1.12,"xl":1.25}[s.scale]||1;
+    $("setHideDone").checked=s.hideDone;
+    $("hideDoneToggle").checked=s.hideDone;
+  }
+  function renderSettings(){
+    document.querySelectorAll("#accentSwatches .swatch").forEach(b=>b.classList.toggle("active",b.dataset.accent===state.settings.accent));
+    document.querySelectorAll("#scaleSeg button").forEach(b=>b.classList.toggle("active",b.dataset.scale===state.settings.scale));
+    document.querySelectorAll("#layoutSeg button").forEach(b=>b.classList.toggle("active",b.dataset.layout===state.settings.layout));
+    document.querySelectorAll("#unitsSeg button").forEach(b=>b.classList.toggle("active",b.dataset.units===state.settings.units));
+  }
+
+  let toastTimer;
+  function toast(msg){
+    const t=$("toast");t.textContent=msg;t.classList.add("show");
+    clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove("show"),2200);
+  }
+  async function copyText(text,label){
+    let ok=false;
+    try{await navigator.clipboard.writeText(text);ok=true;}
+    catch(e){
+      const ta=document.createElement("textarea");ta.value=text;ta.style.position="fixed";ta.style.opacity="0";
+      document.body.appendChild(ta);ta.select();
+      try{ok=document.execCommand("copy");}catch(err){ok=false;}
+      ta.remove();
+    }
+    toast(ok?(label||"Copié !"):"Copie impossible sur ce navigateur");
+  }
+  function askConfirm(title,text,okLabel,cb){
+    $("confirmTitle").textContent=title;$("confirmText").textContent=text;
+    $("okConfirm").textContent=okLabel||"Supprimer";ui.confirmCb=cb;
+    $("confirmModal").classList.add("open");
+  }
+
+  function totals(){
+    const b=activeBuild(),ms=b?b.materials:[];
+    const needed=ms.reduce((s,m)=>s+m.needed,0);
+    const have=ms.reduce((s,m)=>s+clampHave(m),0);
+    const remaining=Math.max(0,needed-have);
+    const slots=ms.reduce((s,m)=>s+C.ceilDiv(remainingOf(m),m.stackSize),0);
+    const shulkers=C.ceilDiv(slots,C.SHULKER_SLOTS);
+    const done=ms.filter(isDone).length;
+    return {needed,have,remaining,slots,shulkers,done,count:ms.length};
+  }
+
+  function parseAndImport(){
+    const b=activeBuild();if(!b)return;
+    const lines=$("importText").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+    if(!lines.length){notice("Colle d'abord une liste de matériaux.");return;}
+    const parsed=lines.map(C.parseLine);
+    const valid=parsed.filter(p=>p.material).map(p=>p.material);
+    const errors=parsed.map((p,i)=>p.error?`Ligne ${i+1} (« ${lines[i]} ») : ${p.error}`:null).filter(Boolean);
+    if(!valid.length){
+      notice("Aucune ligne compréhensible.");
+      showErrors(errors);return;
+    }
+    const replace=$("importReplace").checked;
+    let merged=0,added=0;
+    if(replace){
+      b.materials=valid.map(m=>({id:uid(),name:m.name,needed:m.needed,have:0,stackSize:64,done:false,painful:false}));
+      added=valid.length;
+    }else{
+      const byName=new Map(b.materials.map(m=>[m.name.toLowerCase(),m]));
+      for(const m of valid){
+        const ex=byName.get(m.name.toLowerCase());
+        if(ex){ex.needed+=m.needed;ex.done=clampHave(ex)>=ex.needed;merged++;}
+        else{const nm={id:uid(),name:m.name,needed:m.needed,have:0,stackSize:64,done:false,painful:false};b.materials.push(nm);byName.set(nm.name.toLowerCase(),nm);added++;}
+      }
+    }
+    save();render();
+    let msg=replace?`${added} matériau(x) importé(s) (liste remplacée).`:`${added} nouveau(x) matériau(x)${merged?`, ${merged} fusionné(s)`:''}.`;
+    if(errors.length)msg+=` ${errors.length} ligne(s) ignorée(s).`;
+    notice(msg);showErrors(errors);
+  }
+  function notice(msg){$("importNotice").innerHTML=msg;}
+  function showErrors(errors){
+    const box=$("importErrorsBox");
+    if(!errors.length){box.hidden=true;return;}
+    $("importErrorsTitle").textContent=`${errors.length} ligne(s) non comprise(s) — corrige-les ou ajuste-les à la main`;
+    $("importErrors").textContent=errors.join("\n");
+    box.hidden=false;
+  }
+
+  function addMaterial(nameId,qtyId,stackId){
+    const b=activeBuild();if(!b)return;
+    const name=safeName($(nameId).value),needed=Math.floor(Number($(qtyId).value)),stackSize=Number($(stackId).value);
+    if(!name||!Number.isSafeInteger(needed)||needed<1){toast("Entre un nom et une quantité valide.");return;}
+    const ex=b.materials.find(m=>m.name.toLowerCase()===name.toLowerCase());
+    if(ex){ex.needed+=needed;ex.done=clampHave(ex)>=ex.needed;toast(`${name} existait déjà : quantités fusionnées.`);}
+    else b.materials.push({id:uid(),name,needed,have:0,stackSize,done:false,painful:false});
+    $(nameId).value="";$(qtyId).value="";
+    save();render();
+  }
+
+  function setHave(m,v){
+    m.have=Math.max(0,Math.min(m.needed,Math.floor(Number(v)||0)));
+    m.done=m.have>=m.needed&&m.needed>0;
+    save();render();
+  }
+
+  function sorters(){
+    const cmpName=(a,b)=>a.name.localeCompare(b.name,"fr",{sensitivity:"base"});
+    return {
+      alpha:cmpName,
+      remaining:(a,b)=>remainingOf(b)-remainingOf(a)||cmpName(a,b),
+      total:(a,b)=>b.needed-a.needed||cmpName(a,b),
+      progress:(a,b)=>pctOf(a)-pctOf(b)||remainingOf(b)-remainingOf(a)||cmpName(a,b)
+    };
+  }
+
+  function render(){
+    const b=activeBuild();
+    $("buildSelect").innerHTML=state.builds.map(x=>`<option value="${x.id}" ${x.id===state.activeId?"selected":""}>${escapeHtml(x.name)}</option>`).join("");
+    $("listTitle").textContent=b?b.name:"Matériaux du build";
+    $("deleteBuildBtn").disabled=state.builds.length<2;
+
+    const t=totals(),pct=t.needed?Math.floor(t.have/t.needed*100):0;
+    $("percent").textContent=pct+"%";$("globalFill").style.width=pct+"%";
+    $("doneSummary").textContent=`${number(t.have)} / ${number(t.needed)} blocs récupérés`;
+    $("remainingText").textContent=`Il reste ${number(t.remaining)} blocs`;
+    $("itemSummary").textContent=`${t.done} / ${t.count} matériaux terminés`;
+    $("haveBlocks").textContent=number(t.have);
+    $("haveSub").textContent=`sur ${number(t.needed)} nécessaires`;
+    $("remainBlocks").textContent=number(t.remaining);
+    $("remainStacks").textContent=number(t.slots);
+    $("slots").textContent=number(t.slots);
+    $("shulkers").textContent=number(t.shulkers);
+
+    const ms=b?b.materials.slice():[];
+    const priority=ms.slice().sort((a,b)=>remainingOf(b)-remainingOf(a)).filter(m=>remainingOf(m)>0).slice(0,5);
+    $("priorityChips").innerHTML=priority.length?priority.map((m,i)=>`<button class="chip" data-name="${escapeHtml(m.name)}"><span class="chip-rank">#${i+1}</span>${C.iconFor(m.name)} ${escapeHtml(m.name)} <span class="chip-qty">reste ${number(remainingOf(m))}</span></button>`).join(""):`<span class="stat-sub">Rien à farmer : tout est récupéré 🎉</span>`;
+
+    const painful=ms.filter(m=>remainingOf(m)>0&&(m.painful||C.isPainful(m.name))).sort((a,b)=>remainingOf(b)-remainingOf(a)).slice(0,8);
+    $("painfulChips").innerHTML=painful.length
+      ?painful.map(m=>`<button class="chip warn" data-name="${escapeHtml(m.name)}" title="${m.painful?"Marqué manuellement":"Détecté automatiquement"}">⚠️ ${escapeHtml(m.name)} <span class="chip-qty">reste ${number(remainingOf(m))}</span></button>`).join("")
+      :`<span class="stat-sub">Aucun craft pénible détecté. Marque un matériau avec ⚠ dans la liste pour l'épingler ici.</span>`;
+
+    renderList();
+    renderShulkers();
+    renderShare();
+    subscribeRealtime();
+  }
+
+  function renderList(){
+    const b=activeBuild(),ms=b?b.materials:[];
+    const query=$("search").value.trim().toLowerCase();
+    const sorter=sorters()[ui.sort]||sorters().alpha;
+    let filtered=ms.filter(m=>m.name.toLowerCase().includes(query));
+    if(state.settings.hideDone)filtered=filtered.filter(m=>!isDone(m));
+    filtered.sort(sorter);
+    if(!filtered.length){
+      $("materialList").innerHTML=`<div class="empty"><strong>${ms.length?"Aucun résultat":"Aucun matériau pour le moment"}</strong>${ms.length?"Essaie une autre recherche.":"Colle ta liste à gauche pour commencer ton build."}</div>`;
+      return;
+    }
+    $("materialList").innerHTML=filtered.map(m=>{
+      const have=clampHave(m),rem=remainingOf(m),pct=pctOf(m),done=isDone(m);
+      const neededLabel=qtyLabel(m.needed,m.stackSize);
+      const remLabel=rem>0?qtyLabel(rem,m.stackSize):"terminé";
+      return `<article class="material ${done?"done":""}" data-id="${m.id}">
+        <div class="block-icon" title="${escapeHtml(m.name)}">${C.iconFor(m.name)}</div>
+        <div>
+          <div class="material-name">${escapeHtml(m.name)}</div>
+          <div class="material-meta">${number(m.needed)} bloc(s) · ${escapeHtml(neededLabel)} nécessaires · reste ${number(rem)} (${escapeHtml(remLabel)}) · ${pct}%</div>
+          <div class="item-progress"><div style="width:${pct}%"></div></div>
+        </div>
+        <div class="qty">
+          <button class="icon-btn" title="−1" data-action="minus">−</button>
+          <input aria-label="Quantité récupérée pour ${escapeHtml(m.name)}" type="number" min="0" max="${m.needed}" step="1" value="${have}" data-action="have">
+          <button class="icon-btn" title="+1" data-action="plus">+</button>
+          <span>/ ${number(m.needed)}</span>
+        </div>
+        <select class="stack-select" data-action="stack" title="Taille d'une stack">
+          ${C.STACK_SIZES.map(s=>`<option value="${s}" ${m.stackSize===s?"selected":""}>×${s}</option>`).join("")}
+        </select>
+        <div class="material-actions">
+          <label class="done-check" title="${done?"Matériau terminé (décocher remet la quantité récupérée à 0)":"Marquer comme terminé"}"><input type="checkbox" data-action="done" ${done?"checked":""}><span>✓</span></label>
+          <button class="icon-btn ${m.painful?"warn":""}" title="${m.painful?"Retirer des craftings pénibles":"Marquer comme craft pénible (⚠)"}" data-action="painful">⚠</button>
+          <button class="icon-btn" title="Modifier" data-action="edit">✎</button>
+          <button class="icon-btn" title="Supprimer" data-action="delete">×</button>
+        </div>
+      </article>`;
+    }).join("");
+  }
+
+  function shulkerText(plan){
+    const lines=[];
+    plan.forEach((slots,i)=>{
+      const blocks=slots.reduce((s,e)=>s+e.amount,0);
+      lines.push(`▣ Shulker ${i+1} — ${slots.length}/${C.SHULKER_SLOTS} slots — ${number(blocks)} blocs`);
+      const byName=new Map();
+      for(const e of slots){
+        const k=e.name+"|"+e.cap;
+        if(byName.has(k))byName.get(k).amount+=e.amount;
+        else byName.set(k,{name:e.name,cap:e.cap,amount:e.amount});
+      }
+      for(const g of byName.values())lines.push(`  ${g.name}: ${g.amount} (${C.fmtStacks(g.amount,g.cap)})`);
+      lines.push("");
+    });
+    return lines.join("\n").trimEnd();
+  }
+
+  function renderShulkers(){
+    const b=activeBuild(),ms=b?b.materials:[];
+    const plan=C.shulkerPlan(ms);
+    const totalSlots=plan.reduce((s,sh)=>s+sh.length,0);
+    const totalBlocks=plan.reduce((s,sh)=>s+sh.reduce((x,e)=>x+e.amount,0),0);
+    $("shulkerSummary").textContent=plan.length
+      ?`${plan.length} shulker(s) · ${totalSlots} slot(s) remplis · ${number(totalBlocks)} blocs à ranger`
+      :"Rien à ranger : tous les matériaux sont récupérés (ou la liste est vide).";
+    $("copyPlanBtn").disabled=!plan.length;
+    $("shulkerGrid").innerHTML=plan.map((slots,i)=>{
+      const blocks=slots.reduce((s,e)=>s+e.amount,0);
+      const cells=[];
+      for(let s=0;s<C.SHULKER_SLOTS;s++){
+        const e=slots[s];
+        if(e)cells.push(`<div class="slot ${e.amount<e.cap?"partial":""}" title="${escapeHtml(e.name)} : ${e.amount}/${e.cap}"><span class="s-icon">${e.icon}</span><span class="s-name">${escapeHtml(e.name)}</span><span class="s-qty">${e.amount}/${e.cap}</span></div>`);
+        else cells.push(`<div class="slot empty"><span class="s-name">Vide</span></div>`);
+      }
+      return `<div class="shulker">
+        <div class="shulker-head">
+          <div><div class="shulker-title">▣ Shulker ${i+1}</div><div class="shulker-sub">${slots.length} / ${C.SHULKER_SLOTS} slots · ${number(blocks)} blocs</div></div>
+          <button class="btn small" data-copy-shulker="${i}">Copier</button>
+        </div>
+        <div class="slots-scroll"><div class="slots">${cells.join("")}</div></div>
+      </div>`;
+    }).join("");
+  }
+
+  function remainingListText(){
+    const b=activeBuild(),ms=b?b.materials:[];
+    const lines=ms.filter(m=>remainingOf(m)>0).map(m=>`${m.name}: ${C.fmtStacks(remainingOf(m),m.stackSize)}`);
+    return lines.length?lines.join("\n")+"\n":"";
+  }
+
+  function exportTxt(){
+    const b=activeBuild();if(!b){toast("Aucun build à exporter.");return;}
+    const lines=b.materials.map(m=>`${m.name}: ${m.needed} | récupéré: ${clampHave(m)} | stack: ${m.stackSize}`);
+    const content=`${b.name}\n${"=".repeat(b.name.length)}\n\n${lines.join("\n")}\n`;
+    const blob=new Blob([content],{type:"text/plain;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+    a.href=url;a.download=(b.name||"blockcounter").replace(/[^\w-]+/g,"_")+".txt";a.click();URL.revokeObjectURL(url);
+  }
+  function exportJson(){
+    const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+    const name=(activeBuild()?.name||"blockcounter").replace(/[^\w-]+/g,"_");
+    a.href=url;a.download=name+"-sauvegarde.json";a.click();URL.revokeObjectURL(url);
+    toast("Sauvegarde JSON téléchargée.");
+  }
+  function importJson(file){
+    const reader=new FileReader();
+    reader.onload=()=>{
+      let data=null;
+      try{data=JSON.parse(reader.result);}catch(e){}
+      if(!data||!Array.isArray(data.builds)||!data.builds.length){toast("Fichier JSON invalide (sauvegarde BlockCounter attendue).");return;}
+      const builds=data.builds.map(normalizeBuild);
+      askConfirm("Importer la sauvegarde ?",`Cela remplacera les ${state.builds.length} build(s) actuel(s) par les ${builds.length} build(s) du fichier.`,"Remplacer",()=>{
+        state={version:2,builds,activeId:builds[0].id,settings:{...DEFAULT_SETTINGS,...(data.settings||{})}};
+        applySettings();save();render();toast("Sauvegarde importée.");
+      });
+    };
+    reader.readAsText(file);
+  }
+
+  $("buildSelect").addEventListener("change",e=>{state.activeId=e.target.value;save();render();});
+  $("newBuildBtn").addEventListener("click",()=>{$("newBuildName").value="Mon nouveau build";$("newBuildModal").classList.add("open");$("newBuildName").focus();});
+  $("cancelNew").addEventListener("click",()=>$("newBuildModal").classList.remove("open"));
+  $("confirmNew").addEventListener("click",()=>{
+    const b=normalizeBuild({name:$("newBuildName").value||"Mon nouveau build",materials:[]});
+    state.builds.push(b);state.activeId=b.id;
+    $("importText").value="";$("search").value="";notice("");showErrors([]);
+    $("newBuildModal").classList.remove("open");save();render();
+  });
+  $("deleteBuildBtn").addEventListener("click",()=>{
+    const b=activeBuild();if(!b||state.builds.length<2)return;
+    askConfirm("Supprimer le build ?",`« ${b.name} » et ses ${b.materials.length} matériau(x) seront définitivement supprimés.`,"Supprimer",()=>{
+      remoteRemoveBuild(b);
+      state.builds=state.builds.filter(x=>x.id!==b.id);
+      state.activeId=state.builds[0].id;
+      save();render();toast("Build supprimé.");
+    });
+  });
+
+  $("settingsBtn").addEventListener("click",()=>{renderSettings();$("settingsModal").classList.add("open");});
+  $("closeSettings").addEventListener("click",()=>$("settingsModal").classList.remove("open"));
+  $("accentSwatches").addEventListener("click",e=>{
+    const b=e.target.closest(".swatch");if(!b)return;
+    state.settings.accent=b.dataset.accent;save();applySettings();renderSettings();
+  });
+  $("scaleSeg").addEventListener("click",e=>{
+    const b=e.target.closest("button[data-scale]");if(!b)return;
+    state.settings.scale=b.dataset.scale;save();applySettings();renderSettings();
+  });
+  $("layoutSeg").addEventListener("click",e=>{
+    const b=e.target.closest("button[data-layout]");if(!b)return;
+    state.settings.layout=b.dataset.layout;save();applySettings();renderSettings();
+  });
+  $("unitsSeg").addEventListener("click",e=>{
+    const b=e.target.closest("button[data-units]");if(!b)return;
+    state.settings.units=b.dataset.units;save();applySettings();renderSettings();renderList();
+  });
+  $("setHideDone").addEventListener("change",e=>{state.settings.hideDone=e.target.checked;save();applySettings();renderList();});
+  $("hideDoneToggle").addEventListener("change",e=>{state.settings.hideDone=e.target.checked;save();applySettings();renderList();});
+
+  $("duplicateBtn").addEventListener("click",()=>{
+    const b=activeBuild();if(!b)return;
+    const copy=normalizeBuild({name:b.name+" (copie)",materials:b.materials.map(m=>({...m,id:uid(),remoteId:null}))});
+    state.builds.push(copy);state.activeId=copy.id;
+    $("settingsModal").classList.remove("open");
+    save();render();toast(`Build dupliqué : « ${copy.name} »`);
+  });
+  $("resetHaveBtn").addEventListener("click",()=>{
+    const b=activeBuild();if(!b)return;
+    askConfirm("Remettre à zéro ?",`Toutes les quantités récupérées du build « ${b.name} » seront remises à 0.`,"Remettre à zéro",()=>{
+      b.materials.forEach(m=>{m.have=0;m.done=false;});
+      $("settingsModal").classList.remove("open");
+      save();render();toast("Quantités récupérées remises à zéro.");
+    });
+  });
+
+  $("tabBtnMaterials").addEventListener("click",()=>setTab("materials"));
+  $("tabBtnShulkers").addEventListener("click",()=>setTab("shulkers"));
+  function setTab(tab){
+    ui.tab=tab;
+    $("tabBtnMaterials").classList.toggle("active",tab==="materials");
+    $("tabBtnShulkers").classList.toggle("active",tab==="shulkers");
+    $("tab-materials").hidden=tab!=="materials";
+    $("tab-shulkers").hidden=tab!=="shulkers";
+  }
+
+  $("importBtn").addEventListener("click",parseAndImport);
+  $("sampleBtn").addEventListener("click",()=>{$("importText").value="Andesite: 34 stacks + 13\nAndesite Stairs: 5\nBarrel: 25\nBirch Planks: 15 stacks + 36\nBlack Stained Glass: 1 stack + 28";});
+  $("addBtn").addEventListener("click",()=>addMaterial("newName","newQty","newStack"));
+  $("newName").addEventListener("keydown",e=>{if(e.key==="Enter")addMaterial("newName","newQty","newStack");});
+  $("newQty").addEventListener("keydown",e=>{if(e.key==="Enter")addMaterial("newName","newQty","newStack");});
+  $("search").addEventListener("input",renderList);
+  $("sortSelect").addEventListener("change",e=>{ui.sort=e.target.value;renderList();});
+  for(const container of ["priorityChips","painfulChips"]){
+    $(container).addEventListener("click",e=>{
+      const chip=e.target.closest(".chip");if(!chip)return;
+      setTab("materials");$("search").value=chip.dataset.name;renderList();
+    });
+  }
+
+  $("materialList").addEventListener("change",e=>{
+    const card=e.target.closest(".material");if(!card)return;
+    const b=activeBuild();if(!b)return;
+    const m=b.materials.find(x=>x.id===card.dataset.id);if(!m)return;
+    if(e.target.dataset.action==="have")setHave(m,e.target.value);
+    else if(e.target.dataset.action==="stack"){m.stackSize=Number(e.target.value);save();render();}
+    else if(e.target.dataset.action==="done"){
+      if(e.target.checked){m.have=m.needed;m.done=true;}
+      else{m.have=0;m.done=false;}
+      save();render();
+    }
+  });
+  $("materialList").addEventListener("click",e=>{
+    const btn=e.target.closest("button[data-action]");if(!btn)return;
+    const card=btn.closest(".material");if(!card)return;
+    const b=activeBuild();if(!b)return;
+    const m=b.materials.find(x=>x.id===card.dataset.id);if(!m)return;
+    const action=btn.dataset.action;
+    if(action==="minus")setHave(m,clampHave(m)-1);
+    else if(action==="plus")setHave(m,clampHave(m)+1);
+    else if(action==="painful"){m.painful=!m.painful;save();render();}
+    else if(action==="delete"){
+      askConfirm("Supprimer le matériau ?",`« ${m.name} » sera retiré de la liste du build « ${b.name} ».`,"Supprimer",()=>{
+        b.materials=b.materials.filter(x=>x.id!==m.id);save();render();toast("Matériau supprimé.");
+      });
+    }else if(action==="edit"){
+      ui.editId=m.id;
+      $("editName").value=m.name;$("editNeeded").value=m.needed;$("editHave").value=clampHave(m);$("editStack").value=m.stackSize;
+      $("editModal").classList.add("open");$("editName").focus();
+    }
+  });
+
+  $("cancelEdit").addEventListener("click",()=>$("editModal").classList.remove("open"));
+  $("confirmEdit").addEventListener("click",()=>{
+    const b=activeBuild();if(!b)return;
+    const m=b.materials.find(x=>x.id===ui.editId);if(!m)return;
+    const name=safeName($("editName").value),needed=Math.floor(Number($("editNeeded").value)),have=Math.floor(Number($("editHave").value)),stackSize=Number($("editStack").value);
+    if(!name||!Number.isSafeInteger(needed)||needed<1||!C.STACK_SIZES.includes(stackSize)){toast("Valeurs invalides.");return;}
+    m.name=name;m.needed=needed;m.stackSize=stackSize;
+    m.have=Math.max(0,Math.min(needed,Number.isSafeInteger(have)?have:0));
+    m.done=m.have>=needed;
+    $("editModal").classList.remove("open");save();render();toast("Matériau mis à jour.");
+  });
+
+  $("shulkerGrid").addEventListener("click",e=>{
+    const btn=e.target.closest("button[data-copy-shulker]");if(!btn)return;
+    const plan=C.shulkerPlan(activeBuild()?.materials||[]);
+    const slots=plan[Number(btn.dataset.copyShulker)];if(!slots)return;
+    copyText(shulkerText([slots]),`Shulker copié !`);
+  });
+  $("copyPlanBtn").addEventListener("click",()=>{
+    const plan=C.shulkerPlan(activeBuild()?.materials||[]);
+    if(plan.length)copyText(shulkerText(plan),"Plan complet copié !");
+  });
+  $("copyRemainingBtn").addEventListener("click",()=>{
+    const text=remainingListText();
+    if(text)copyText(text,"Liste des restants copiée !");
+    else toast("Aucun matériau restant.");
+  });
+
+  $("exportBtn").addEventListener("click",exportTxt);
+  $("exportJsonBtn").addEventListener("click",exportJson);
+  $("importJsonBtn").addEventListener("click",()=>$("jsonFile").click());
+  $("jsonFile").addEventListener("change",e=>{const f=e.target.files[0];if(f)importJson(f);e.target.value="";});
+
+  for(const id of ["settingsModal","newBuildModal","editModal","confirmModal"]){
+    $(id).addEventListener("click",e=>{if(e.target===$(id))$(id).classList.remove("open");});
+  }
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape")document.querySelectorAll(".modal-backdrop.open").forEach(m=>m.classList.remove("open"));
+  });
+  $("cancelConfirm").addEventListener("click",()=>$("confirmModal").classList.remove("open"));
+  $("okConfirm").addEventListener("click",()=>{
+    $("confirmModal").classList.remove("open");
+    if(ui.confirmCb){const cb=ui.confirmCb;ui.confirmCb=null;cb();}
+  });
+
+
+  const SB_URL="https://olfkfbxtinshpyzulley.supabase.co";
+  const SB_KEY="sb_publishable_CmL_TcqILxV8HE7s-rhNOQ_zgRNNUfm";
+  let sb=null,session=null,offlineMode=false,realtimeChannel=null,subscribedFor=null;
+  const syncTimers=new Map(),lastSynced=new Map();
+  let lastSyncToast=0,loadingRemote=false;
+  const isUuid=s=>/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(String(s||""));
+  function uuidv4(){
+    if(crypto.randomUUID)return crypto.randomUUID();
+    if(crypto.getRandomValues){
+      const b=crypto.getRandomValues(new Uint8Array(16));
+      b[6]=(b[6]&0x0f)|0x40;b[8]=(b[8]&0x3f)|0x80;
+      const h=Array.from(b,x=>x.toString(16).padStart(2,"0")).join("");
+      return h.slice(0,8)+"-"+h.slice(8,12)+"-"+h.slice(12,16)+"-"+h.slice(16,20)+"-"+h.slice(20);
+    }
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==="x"?r:(r&3|8)).toString(16);});
+  }
+  function matSnapshot(m){return {name:m.name,needed:m.needed,have:clampHave(m),stack_size:m.stackSize,done:!!m.done,painful:!!m.painful};}
+  function snapOf(b){const map=new Map();for(const m of b.materials)map.set(m.id,JSON.stringify(matSnapshot(m)));return map;}
+  function toastOnce(msg){if(Date.now()-lastSyncToast>8000){lastSyncToast=Date.now();toast(msg);}}
+  function scheduleSync(){
+    const b=activeBuild();if(!b||!sb||!session)return;
+    clearTimeout(syncTimers.get(b.id));
+    syncTimers.set(b.id,setTimeout(()=>syncBuild(state.builds.find(x=>x.id===b.id)),700));
+  }
+  async function syncBuild(b){
+    if(!sb||!session||!b)return;
+    try{
+      const prev=lastSynced.get(b.id)||new Map();
+      if(!b.remoteId){
+        const {data,error}=await sb.from("builds").insert({name:b.name}).select("id,share_code").single();
+        if(error)throw error;
+        b.remoteId=data.id;b.shareCode=data.share_code;
+        const {data:mm}=await sb.from("build_members").select("build_id,role,email").eq("build_id",b.remoteId);
+        b.members=(mm||[]).map(x=>({email:x.email,role:x.role}));
+      }else if(prev.get("__name")!==b.name){
+        const {error}=await sb.from("builds").update({name:b.name}).eq("id",b.remoteId);
+        if(error)toastOnce("Seul le propriétaire peut renommer ce build.");
+      }
+      const curIds=new Set(b.materials.map(m=>m.id));
+      const changed=[],removed=[];
+      for(const m of b.materials){
+        const s=JSON.stringify(matSnapshot(m));
+        if(!m.remoteId){
+          if(!isUuid(m.id))m.id=uuidv4();
+          m.remoteId=m.id;
+          changed.push({id:m.id,build_id:b.remoteId,...matSnapshot(m)});
+        }else if(prev.get(m.id)!==s){
+          changed.push({id:m.remoteId,build_id:b.remoteId,...matSnapshot(m)});
+        }
+      }
+      for(const k of prev.keys())if(k!=="__name"&&!curIds.has(k))removed.push(k);
+      if(changed.length)await sb.from("materials").upsert(changed);
+      if(removed.length)await sb.from("materials").delete().in("id",removed);
+      const snap=snapOf(b);snap.set("__name",b.name);
+      lastSynced.set(b.id,snap);
+      saveLocal();renderShare();subscribeRealtime();
+    }catch(e){
+      console.warn("Sync",e);
+      toastOnce("Synchronisation impossible — nouvel essai au prochain changement.");
+    }
+  }
+  async function loadRemote(){
+    if(!sb||!session||loadingRemote)return;
+    loadingRemote=true;
+    try{
+      for(const b of state.builds)if(b.remoteId&&lastSynced.has(b.id))await syncBuild(b);
+      const {data:rb,error}=await sb.from("builds").select("id,name,share_code");
+      if(error)throw error;
+      const ids=(rb||[]).map(x=>x.id);
+      let rmats=[],rmembers=[];
+      if(ids.length){
+        const [a,c]=await Promise.all([
+          sb.from("materials").select("*").in("build_id",ids),
+          sb.from("build_members").select("build_id,role,email").in("build_id",ids)
+        ]);
+        if(a.error)throw a.error;
+        rmats=a.data||[];rmembers=c.data||[];
+      }
+      const byRemote=new Map(state.builds.filter(b=>b.remoteId).map(b=>[b.remoteId,b]));
+      const localOnly=state.builds.filter(b=>!b.remoteId);
+      const keptByBuild=new Map();
+      const merged=(rb||[]).map(r=>{
+        const ex=byRemote.get(r.id);
+        const kept=new Map();
+        const mats=rmats.filter(m=>m.build_id===r.id).map(m=>{
+          const rs=JSON.stringify({name:m.name,needed:m.needed,have:m.have,stack_size:m.stack_size,done:m.done,painful:m.painful});
+          const lm=ex?ex.materials.find(x=>x.remoteId===m.id):null;
+          if(lm){
+            const base=lastSynced.get(ex.id),ls=base?base.get(lm.id):null;
+            const cur=JSON.stringify(matSnapshot(lm));
+            if(ls!==null&&ls!==undefined&&cur!==ls&&cur!==rs){kept.set(lm.id,rs);return lm;}
+          }
+          return {id:m.id,remoteId:m.id,name:m.name,needed:m.needed,have:m.have,stackSize:m.stack_size,done:m.done,painful:m.painful};
+        });
+        if(kept.size)keptByBuild.set(r.id,kept);
+        const members=rmembers.filter(x=>x.build_id===r.id).map(x=>({email:x.email,role:x.role}));
+        if(ex){ex.name=r.name;ex.shareCode=r.share_code;ex.materials=mats;ex.members=members;return ex;}
+        return {id:r.id,remoteId:r.id,shareCode:r.share_code,members,name:r.name,createdAt:Date.parse(r.created_at)||Date.now(),materials:mats};
+      });
+      state.builds=merged.concat(localOnly);
+      if(!state.builds.length){
+        const b=normalizeBuild({name:"Mon premier build",materials:[]});
+        state.builds.push(b);state.activeId=b.id;save();syncBuild(b);
+      }else if(!state.builds.some(b=>b.id===state.activeId))state.activeId=state.builds[0].id;
+      for(const b of state.builds)if(!b.remoteId)syncBuild(b);
+      for(const b of state.builds)if(b.remoteId){
+        const s=snapOf(b);const kept=keptByBuild.get(b.id);
+        if(kept)for(const [kid,krs] of kept)s.set(kid,krs);
+        s.set("__name",b.name);lastSynced.set(b.id,s);
+      }
+      saveLocal();render();
+    }catch(e){
+      console.warn(e);
+      toastOnce("Chargement des builds en ligne impossible.");
+    }finally{
+      loadingRemote=false;
+    }
+  }
+  function applyRemote(p){
+    const b=activeBuild();if(!b||!b.remoteId)return;
+    if(p.eventType==="DELETE"){
+      const old=p.old&&p.old.id?p.old.id:null;if(!old)return;
+      const n=b.materials.length;
+      b.materials=b.materials.filter(m=>m.remoteId!==old);
+      if(b.materials.length!==n){saveLocal();render();}
+      return;
+    }
+    const row=p.new;if(!row||!row.id||row.build_id!==b.remoteId)return;
+    const vals={id:row.id,remoteId:row.id,name:row.name,needed:row.needed,have:row.have,stackSize:row.stack_size,done:row.done,painful:row.painful};
+    let m=b.materials.find(x=>x.remoteId===row.id);
+    if(!m){b.materials.push(vals);saveLocal();render();return;}
+    if(JSON.stringify(matSnapshot(m))!==JSON.stringify({name:row.name,needed:row.needed,have:row.have,stack_size:row.stack_size,done:row.done,painful:row.painful})){
+      Object.assign(m,vals);saveLocal();render();
+    }
+  }
+  function subscribeRealtime(){
+    const b=activeBuild();
+    const target=b&&b.remoteId?b.remoteId:null;
+    if(target===subscribedFor)return;
+    subscribedFor=target;
+    if(realtimeChannel&&sb){sb.removeChannel(realtimeChannel);realtimeChannel=null;}
+    if(!sb||!session||!target)return;
+    realtimeChannel=sb.channel("bc-"+target)
+      .on("postgres_changes",{event:"*",schema:"public",table:"materials",filter:"build_id=eq."+target},applyRemote)
+      .subscribe();
+  }
+  function renderShare(){
+    const b=activeBuild();
+    $("shareCode").textContent=b&&b.shareCode?b.shareCode:"—";
+    const list=b&&Array.isArray(b.members)?b.members:[];
+    $("membersList").innerHTML=list.length
+      ?list.map(x=>`<div class="member"><span>${escapeHtml(x.email||"membre")}</span><span class="role">${x.role==="owner"?"propriétaire":"éditeur"}</span></div>`).join("")
+      :(b&&b.remoteId?`<div class="member"><span>Aucun autre membre pour l'instant.</span></div>`:`<div class="member"><span>Connecte-toi pour activer le partage de ce build.</span></div>`);
+  }
+  function remoteRemoveBuild(b){
+    if(!sb||!session||!b.remoteId)return;
+    sb.from("builds").delete().eq("id",b.remoteId).then(({error})=>{
+      if(error)sb.from("build_members").delete().eq("build_id",b.remoteId).eq("user_id",session.user.id);
+    });
+  }
+  function setAccountUi(){
+    $("accountBtn").textContent=session?((session.user&&session.user.email)||"Connecté"):(offlineMode?"Hors-ligne · Se connecter":"Se connecter");
+  }
+  function showAuth(){
+    $("authPass").value="";
+    $("authModal").classList.add("open");$("authEmail").focus();
+  }
+  function onSignedIn(){
+    $("authModal").classList.remove("open");
+    setAccountUi();loadRemote();subscribeRealtime();
+    toast("Connecté : builds synchronisés !");
+  }
+  function onSignedOut(){
+    session=null;offlineMode=true;subscribedFor=null;
+    if(realtimeChannel&&sb){sb.removeChannel(realtimeChannel);realtimeChannel=null;}
+    setAccountUi();renderShare();
+  }
+  function initAuth(){
+    if(!window.supabase){offlineMode=true;setAccountUi();return;}
+    sb=window.supabase.createClient(SB_URL,SB_KEY);
+    sb.auth.onAuthStateChange((e,s)=>{
+      if(e==="SIGNED_IN"&&s){session=s;setAccountUi();onSignedIn();}
+      else if(e==="SIGNED_OUT")onSignedOut();
+    });
+    sb.auth.getSession().then(({data})=>{
+      if(data&&data.session){session=data.session;setAccountUi();onSignedIn();}
+      else{setAccountUi();showAuth();}
+    });
+  }
+
+  function authValues(){
+    const email=$("authEmail").value.trim();
+    const password=$("authPass").value;
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){toast("Entre une adresse e-mail valide.");return null;}
+    if(password.length<6){toast("Le mot de passe doit faire au moins 6 caractères.");return null;}
+    return {email,password};
+  }
+  $("authSend").addEventListener("click",async()=>{
+    const v=authValues();if(!v)return;
+    $("authSend").disabled=true;
+    const {error}=await sb.auth.signInWithPassword(v);
+    $("authSend").disabled=false;
+    if(error)return toast("Connexion impossible : vérifie ton e-mail et ton mot de passe.");
+  });
+  $("authSignup").addEventListener("click",async()=>{
+    const v=authValues();if(!v)return;
+    $("authSignup").disabled=true;
+    const {data,error}=await sb.auth.signUp(v);
+    $("authSignup").disabled=false;
+    if(error)return toast("Création impossible : "+error.message);
+    if(!data.session)toast("Compte créé, mais la confirmation par e-mail est encore activée : décoche « Confirm email » dans Supabase puis reconnecte-toi.");
+  });
+  $("authOffline").addEventListener("click",()=>{offlineMode=true;$("authModal").classList.remove("open");setAccountUi();toast("Mode hors-ligne : les données restent sur cet appareil.");});
+  $("accountBtn").addEventListener("click",()=>{
+    if(session){askConfirm("Se déconnecter ?","Tes builds restent sur cet appareil, mais les modifications ne seront plus synchronisées tant que tu n'es pas reconnecté.","Se déconnecter",()=>sb.auth.signOut());}
+    else showAuth();
+  });
+  $("copyShareBtn").addEventListener("click",()=>{
+    const b=activeBuild();
+    if(b&&b.shareCode)copyText(b.shareCode,"Code de partage copié !");
+    else toast("Aucun code : connecte-toi pour activer le partage.");
+  });
+  $("joinBtn").addEventListener("click",async()=>{
+    const code=$("joinCode").value.trim();
+    if(!code)return toast("Entre un code de partage.");
+    if(!sb||!session)return toast("Connecte-toi pour rejoindre un build.");
+    const {data,error}=await sb.rpc("join_build",{p_code:code});
+    if(error){
+      const m=String(error.message||"");
+      return toast(m.includes("CODE_INCONNU")?"Code inconnu.":(m.includes("NON_CONNECTE")?"Connecte-toi d'abord.":"Impossible de rejoindre ce build."));
+    }
+    $("joinCode").value="";$("settingsModal").classList.remove("open");
+    toast("Build rejoint !");
+    await loadRemote();
+  });
+
+  loadData();
+  if(!state.builds.length){
+    const b=normalizeBuild({name:"Mon premier build",materials:[]});
+    state.builds.push(b);state.activeId=b.id;save();
+  }
+  applySettings();
+  render();
+  setInterval(()=>{
+    const ae=document.activeElement;
+    if(session&&!document.hidden&&!(ae&&(ae.tagName==="INPUT"||ae.tagName==="TEXTAREA")))loadRemote();
+  },20000);
+  initAuth();
+})();
+</script>
+</body>
+</html>
